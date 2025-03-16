@@ -1,21 +1,16 @@
 
 import { createClient } from '@supabase/supabase-js';
 
-// Replace these with your Supabase URL and anon key
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
-
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
-
-// Registration form data types
+// Define TeamMember interface for use throughout the app
 export interface TeamMember {
   name: string;
   rollNo: string;
   email: string;
 }
 
+// Define registration data interface
 export interface RegistrationData {
-  hasTeam: string;
+  hasTeam: string | null;
   member1: TeamMember;
   member2?: TeamMember;
   member3?: TeamMember;
@@ -23,13 +18,30 @@ export interface RegistrationData {
   createdAt: string;
 }
 
-// Function to submit registration data
-export const submitRegistration = async (data: RegistrationData) => {
-  const { error } = await supabase.from('registrations').insert([data]);
+// Create a mock function for local development
+export const submitRegistration = async (data: RegistrationData): Promise<void> => {
+  // In a real app, this would send data to Supabase
+  console.log('Registration data submitted:', data);
   
-  if (error) {
-    throw error;
-  }
+  // Simulate network delay
+  await new Promise(resolve => setTimeout(resolve, 1000));
   
-  return { success: true };
+  // Return success (would normally return the data from Supabase)
+  return Promise.resolve();
 };
+
+// Note: To use actual Supabase, uncomment and configure with your credentials
+/*
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
+const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+
+const supabase = createClient(supabaseUrl, supabaseKey);
+
+export const submitRegistration = async (data: RegistrationData): Promise<void> => {
+  const { error } = await supabase
+    .from('registrations')
+    .insert([data]);
+  
+  if (error) throw error;
+};
+*/
