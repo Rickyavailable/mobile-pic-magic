@@ -7,19 +7,16 @@ interface RegisterButtonProps {
   className?: string;
   children?: React.ReactNode;
   onClick?: () => void;
-  disabled?: boolean;
 }
 
 const RegisterButton = ({
   className,
   children = "Register now",
   onClick,
-  disabled = false,
 }: RegisterButtonProps) => {
   return (
     <button
       onClick={onClick}
-      disabled={disabled}
       className={cn(
         "group relative overflow-hidden rounded-xl",
         "bg-primary/10 backdrop-blur-sm border border-white/10",
@@ -27,7 +24,6 @@ const RegisterButton = ({
         "transition-all duration-300 ease-out",
         "hover:scale-[0.98] hover:bg-primary/15 active:scale-[0.97]",
         "focus:outline-none focus:ring-2 focus:ring-white/20",
-        "disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100",
         className
       )}
     >
@@ -35,11 +31,9 @@ const RegisterButton = ({
         <span className="transition-transform duration-300 group-hover:translate-x-[-4px]">
           {children}
         </span>
-        {!disabled && (
-          <ArrowRight 
-            className="h-4 w-4 transition-all duration-300 group-hover:translate-x-1 group-hover:opacity-100 opacity-70" 
-          />
-        )}
+        <ArrowRight 
+          className="h-4 w-4 transition-all duration-300 group-hover:translate-x-1 group-hover:opacity-100 opacity-70" 
+        />
       </div>
       <div className="absolute inset-0 z-0 opacity-0 transition-opacity duration-300 bg-gradient-to-r from-white/10 to-white/5 group-hover:opacity-100" />
       <div className="absolute inset-0 -z-10 rounded-xl shimmer opacity-0 group-hover:opacity-100" />
