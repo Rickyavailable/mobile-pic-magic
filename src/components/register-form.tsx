@@ -6,13 +6,8 @@ import { RadioGroup, RadioGroupItem } from './ui/radio-group';
 import { Label } from './ui/label';
 import { Input } from './ui/input';
 import { Checkbox } from './ui/checkbox';
-import { User, Mail, BookOpen } from 'lucide-react';
-
-interface TeamMember {
-  name: string;
-  rollNo: string;
-  email: string;
-}
+import { User, Mail, BookOpen, Loader2 } from 'lucide-react';
+import { submitRegistration, TeamMember } from '@/lib/supabase';
 
 const RegisterForm = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -21,8 +16,9 @@ const RegisterForm = () => {
   const [member2, setMember2] = useState<TeamMember>({ name: '', rollNo: '', email: '' });
   const [member3, setMember3] = useState<TeamMember>({ name: '', rollNo: '', email: '' });
   const [wantsCollaboration, setWantsCollaboration] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
-  const handleRegister = () => {
+  const handleRegister = async () => {
     if (!isOpen) {
       setIsOpen(true);
       return;
@@ -53,10 +49,42 @@ const RegisterForm = () => {
       }
     }
     
-    toast.success("Registration successful", {
-      description: "We'll be in touch with more details soon.",
-      duration: 5000,
-    });
+    try {
+      setIsSubmitting(true);
+      
+      // Prepare the data
+      const registrationData = {
+        hasTeam,
+        member1,
+        member2: hasTeam === 'yes' ? member2 : undefined,
+        member3: hasTeam === 'yes' && (member3.name || member3.rollNo || member3.email) ? member3 : undefined,
+        wantsCollaboration: hasTeam === 'yes' ? wantsCollaboration : false,
+        createdAt: new Date().toISOString(),
+      };
+      
+      // Submit to Supabase
+      await submitRegistration(registrationData);
+      
+      toast.success("Registration successful", {
+        description: "We'll be in touch with more details soon.",
+        duration: 5000,
+      });
+      
+      // Reset the form
+      setHasTeam(null);
+      setMember1({ name: '', rollNo: '', email: '' });
+      setMember2({ name: '', rollNo: '', email: '' });
+      setMember3({ name: '', rollNo: '', email: '' });
+      setWantsCollaboration(false);
+      setIsOpen(false);
+    } catch (error) {
+      console.error("Registration error:", error);
+      toast.error("Registration failed", {
+        description: "Please try again later or contact support.",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
   
   const updateMember = (memberIndex: number, field: keyof TeamMember, value: string) => {
@@ -292,8 +320,18 @@ const RegisterForm = () => {
                 )}
                 
                 <div className="pt-4">
-                  <RegisterButton onClick={handleRegister}>
-                    Complete Registration
+                  <RegisterButton 
+                    onClick={handleRegister}
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        <span>Processing...</span>
+                      </>
+                    ) : (
+                      'Complete Registration'
+                    )}
                   </RegisterButton>
                 </div>
               </div>
@@ -302,7 +340,10 @@ const RegisterForm = () => {
             <RegisterButton 
               onClick={handleRegister}
               className="w-full py-4"
-            />
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? 'Processing...' : 'Register now'}
+            </RegisterButton>
           )}
         </div>
       </div>
